@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Clientes - AjudaAqui</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <!-- BARRA DE NAVEGAÇÃO -->
+    <div th:replace="~{navbar :: navbar}"></div>
+
+    <div class="max-w-6xl mx-auto bg-white p-6 rounded-lg shadow-md">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-800">Gestão de Clientes</h1>
+            <a th:href="@{/clientes/novo}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 font-medium">
+                + Novo Cliente
+            </a>
+        </div>
+
+        <div class="mb-4">
+            <input type="text" 
+                   name="busca" 
+                   th:value="${busca}"
+                   placeholder="Buscar por nome ou CPF..." 
+                   class="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                   hx-get="/clientes" 
+                   hx-trigger="keyup changed delay:300ms" 
+                   hx-target="#tabela-container" 
+                   hx-select="#tabela-container" />
+        </div>
+
+        <div id="tabela-container">
+            <div th:replace="~{clientes/tabela :: tabela-clientes}"></div>
+        </div>
+    </div>
+</body>
+</html>

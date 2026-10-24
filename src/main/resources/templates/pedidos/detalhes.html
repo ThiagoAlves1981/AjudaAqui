@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalhes do Pedido - AjudaAqui</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-8">
+    <div class="max-w-5xl mx-auto space-y-6">
+        
+        <!-- Cabeçalho / Resumo do Pedido -->
+        <div class="bg-white p-6 rounded-lg shadow-md flex justify-between items-center">
+            <div>
+                <a th:href="@{/pedidos}" class="text-sm text-indigo-600 hover:underline">← Voltar para Pedidos</a>
+                <h1 class="text-3xl font-bold text-gray-800 mt-1" th:text="'Pedido #' + ${pedido.id}">#1</h1>
+                <p class="text-gray-600 mt-1">
+                    <strong>Cliente:</strong> <span th:text="${pedido.clienteComprador.nome}"></span> | 
+                    <strong>Data:</strong> <span th:text="${#temporals.format(pedido.dataHoraPedido, 'dd/MM/yyyy HH:mm')}"></span>
+                </p>
+            </div>
+
+            <!-- Alteração Rápida de Status -->
+            <form th:action="@{/pedidos/{id}/status(id=${pedido.id})}" method="post" class="flex items-center space-x-2">
+                <label class="text-sm font-medium text-gray-700">Status:</label>
+                <select name="statusPedido" onchange="this.form.submit()"
+                        class="border border-gray-300 px-3 py-1.5 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white font-semibold">
+                    <option th:each="st : ${statusOptions}" 
+                            th:value="${st}" 
+                            th:text="${st}" 
+                            th:selected="${st == pedido.statusPedido}">
+                    </option>
+                </select>
+            </form>
+        </div>
+
+        <!-- Seção de Itens do Pedido -->
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Itens do Pedido</h2>
+
+            <!-- FORMULÁRIO DE ADIÇÃO DE ITENS COM HTMX -->
+            <form hx-post="/itens/adicionar" 
+                  hx-target="#tabela-itens-container" 
+                  class="flex flex-wrap items-end gap-4 mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <input type="hidden" name="pedidoId" th:value="${pedido.id}" />
+
+                <div class="flex-1 min-w-[200px]">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Produto:</label>
+                    <select name="produtoId" required 
+                            class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
+                        <option value="">-- Selecione um Produto --</option>
+                        <option th:each="p : ${produtos}" 
+                                th:value="${p.id}" 
+                                th:text="${p.nome + ' (R$ ' + p.precoAtual + ')'}">
+                        </option>
+                    </select>
+                </div>
+
+                <div class="w-32">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Quantidade:</label>
+                    <input type="number" name="quantidade" value="1" min="1" required 
+                           class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                </div>
+
+                <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 font-medium">
+                    + Adicionar Item
+                </button>
+            </form>
+
+            <!-- Tabela Dinâmica de Itens (Fragmento HTMX) -->
+            <div id="tabela-itens-container">
+                <div th:fragment="tabela-itens" id="tabela-itens">
+                    <table class="w-full text-left border-collapse mb-6">
+                        <thead>
+                            <tr class="border-b bg-gray-50 text-gray-700">
+                                <th class="py-3 px-4">Produto</th>
+                                <th class="py-3 px-4">Preço Unit. (Snapshot)</th>
+                                <th class="py-3 px-4 text-center">Quantidade</th>
+                                <th class="py-3 px-4">Subtotal</th>
+                                <th class="py-3 px-4 text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="item : ${pedido.listaItensPedido}" class="border-b hover:bg-gray-50">
+                                <td class="py-3 px-4 font-semibold text-gray-800" th:text="${item.produto.nome}">Produto X</td>
+                                <td class="py-3 px-4 text-gray-600" th:text="${'R$ ' + item.precoUnitario}">R$ 10,00</td>
+                                <td class="py-3 px-4 text-center">
+                                    <form hx-post="/itens/editar-quantidade" 
+                                          hx-target="#tabela-itens-container" 
+                                          class="inline-flex items-center space-x-1">
+                                        <input type="hidden" name="itemId" th:value="${item.id}" />
+                                        <input type="hidden" name="pedidoId" th:value="${pedido.id}" />
+                                        <input type="number" name="quantidade" min="1" th:value="${item.quantidade}" 
+                                               class="w-16 border border-gray-300 rounded text-center py-1 text-sm focus:ring-2 focus:ring-indigo-500" />
+                                        <button type="submit" class="text-xs bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded">
+                                            Salvar
+                                        </button>
+                                    </form>
+                                </td>
+                                <td class="py-3 px-4 font-bold text-gray-700" 
+                                    th:text="${'R$ ' + (item.precoUnitario * item.quantidade)}">R$ 20,00</td>
+                                <td class="py-3 px-4 text-center">
+                                    <button th:hx-delete="@{/itens/deletar/{id}(id=${item.id}, pedidoId=${pedido.id})}"
+                                            hx-target="#tabela-itens-container"
+                                            hx-confirm="Deseja remover este item do pedido?"
+                                            class="text-red-600 hover:underline font-medium text-sm">
+                                        Remover
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr th:if="${pedido.listaItensPedido.empty}">
+                                <td colspan="5" class="text-center py-6 text-gray-500">Nenhum item adicionado a este pedido ainda.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

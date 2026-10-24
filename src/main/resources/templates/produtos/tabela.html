@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<body>
+<div th:fragment="tabela-produtos" id="area-tabela" class="bg-white shadow-md rounded-lg overflow-hidden">
+    <table class="min-w-full leading-normal">
+        <thead>
+            <tr class="bg-gray-200 text-gray-600 uppercase text-xs leading-normal">
+                <th class="py-3 px-6 text-left">ID</th>
+                <th class="py-3 px-6 text-left">Nome</th>
+                <th class="py-3 px-6 text-left">Descrição</th>
+                <th class="py-3 px-6 text-right">Preço</th>
+                <th class="py-3 px-6 text-center">Ações</th>
+            </tr>
+        </thead>
+        <tbody class="text-gray-600 text-sm font-light">
+            <tr th:each="prod : ${produtos.content}" class="border-b border-gray-200 hover:bg-gray-50">
+                <td class="py-3 px-6 text-left font-bold" th:text="${prod.id}">1</td>
+                <td class="py-3 px-6 text-left" th:text="${prod.nome}">Produto Exemplo</td>
+                <td class="py-3 px-6 text-left" th:text="${prod.descricao != null ? prod.descricao : '-'}">Descrição</td>
+                <td class="py-3 px-6 text-right font-semibold text-green-600" th:text="${'R$ ' + #numbers.formatDecimal(prod.precoAtual, 1, 'POINT', 2, 'COMMA')}">R$ 0,00</td>
+                <td class="py-3 px-6 text-center space-x-2">
+                    <a th:href="@{/produtos/editar/{id}(id=${prod.id})}" class="bg-yellow-500 hover:bg-yellow-600 text-white text-xs px-3 py-1 rounded">Editar</a>
+                    <button th:attr="hx-delete=@{/produtos/deletar/{id}(id=${prod.id}, busca=${busca}, pagina=${produtos.number})}"
+                            hx-target="#area-tabela"
+                            hx-swap="outerHTML"
+                            onclick="return confirm('Tem certeza que deseja excluir este produto?')"
+                            class="bg-red-500 hover:bg-red-600 text-white text-xs px-3 py-1 rounded">
+                        Excluir
+                    </button>
+                </td>
+            </tr>
+            <tr th:if="${produtos.totalElements == 0}">
+                <td colspan="5" class="text-center py-6 text-gray-500">Nenhum produto encontrado.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Componente de Paginação -->
+    <div class="px-6 py-4 bg-gray-50 border-t flex justify-between items-center" th:if="${produtos.totalPages > 0}">
+        <span class="text-xs text-gray-600" th:text="${'Página ' + (produtos.number + 1) + ' de ' + produtos.totalPages}">Página 1 de 1</span>
+        <div class="inline-flex space-x-1">
+            <button th:disabled="${produtos.first}"
+                    th:attr="hx-get=@{/produtos(busca=${busca}, pagina=${produtos.number - 1})}"
+                    hx-target="#area-tabela"
+                    hx-swap="outerHTML"
+                    class="px-3 py-1 text-xs font-semibold rounded bg-indigo-500 text-white disabled:opacity-50">Anterior</button>
+            <button th:disabled="${produtos.last}"
+                    th:attr="hx-get=@{/produtos(busca=${busca}, pagina=${produtos.number + 1})}"
+                    hx-target="#area-tabela"
+                    hx-swap="outerHTML"
+                    class="px-3 py-1 text-xs font-semibold rounded bg-indigo-500 text-white disabled:opacity-50">Próxima</button>
+        </div>
+    </div>
+</div>
+</body>
+</html>
