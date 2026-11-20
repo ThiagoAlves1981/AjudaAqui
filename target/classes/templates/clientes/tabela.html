@@ -1,0 +1,37 @@
+<div th:fragment="tabela-clientes" id="tabela-clientes" xmlns:th="http://www.thymeleaf.org">
+    <table class="w-full text-left border-collapse">
+        <thead>
+            <tr class="border-b bg-gray-50 text-gray-700">
+                <th class="py-3 px-4">ID</th>
+                <th class="py-3 px-4">Nome</th>
+                <th class="py-3 px-4">CPF</th>
+                <th class="py-3 px-4 text-center">Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="cliente : ${clientes.content}" class="border-b hover:bg-gray-50">
+                <td class="py-3 px-4" th:text="${cliente.id}">1</td>
+                <td class="py-3 px-4 font-semibold text-gray-800" th:text="${cliente.nome}">João Silva</td>
+                <td class="py-3 px-4 text-gray-600" th:text="${cliente.cpf}">123.456.789-00</td>
+                <td class="py-3 px-4 text-center space-x-3">
+                    <!-- BOTÃO PARA VER PEDIDOS DO CLIENTE -->
+                    <a th:href="@{/pedidos(clienteId=${cliente.id})}" 
+                       class="text-indigo-600 hover:underline font-medium">
+                        🛒 Ver Pedidos
+                    </a>
+                    <a th:href="@{/clientes/editar/{id}(id=${cliente.id})}" 
+                       class="text-blue-600 hover:underline font-medium">Editar</a>
+                    <button th:hx-delete="@{/clientes/deletar/{id}(id=${cliente.id})}"
+                            hx-target="#tabela-container"
+                            hx-confirm="Tem certeza que deseja excluir este cliente?"
+                            class="text-red-600 hover:underline font-medium">
+                        Excluir
+                    </button>
+                </td>
+            </tr>
+            <tr th:if="${clientes.empty}">
+                <td colspan="4" class="text-center py-6 text-gray-500">Nenhum cliente encontrado.</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

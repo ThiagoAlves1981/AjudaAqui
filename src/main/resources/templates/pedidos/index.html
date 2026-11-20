@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Pedidos - AjudaAqui</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div th:replace="~{navbar :: navbar}"></div>
+
+    <div class="max-w-6xl mx-auto bg-white p-6 rounded-lg shadow-md">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-800">Gestão de Pedidos</h1>
+            <a th:href="@{/pedidos/novo}" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 font-medium">
+                + Novo Pedido
+            </a>
+        </div>
+
+        <!-- FILTROS (Busca por Nome ou Seleção de Cliente) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Filtrar por Cliente:</label>
+                <select name="clienteId" 
+                        class="w-full border border-gray-300 px-3 py-2 rounded-md focus:ring-2 focus:ring-indigo-500 bg-white"
+                        hx-get="/pedidos" 
+                        hx-trigger="change" 
+                        hx-target="#tabela-container" 
+                        hx-select="#tabela-container">
+                    <option value="">-- Todos os Clientes --</option>
+                    <option th:each="c : ${clientes}" 
+                            th:value="${c.id}" 
+                            th:text="${c.nome + ' (CPF: ' + c.cpf + ')'}"
+                            th:selected="${c.id == clienteIdSeleccionado}">
+                    </option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Buscar por Nome do Cliente:</label>
+                <input type="text" 
+                       name="busca" 
+                       th:value="${busca}"
+                       placeholder="Digite o nome do cliente..." 
+                       class="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-indigo-500"
+                       hx-get="/pedidos" 
+                       hx-trigger="keyup changed delay:300ms" 
+                       hx-target="#tabela-container" 
+                       hx-select="#tabela-container" />
+            </div>
+        </div>
+
+        <div id="tabela-container">
+            <div th:replace="~{pedidos/tabela :: tabela-pedidos}"></div>
+        </div>
+    </div>
+</body>
+</html>

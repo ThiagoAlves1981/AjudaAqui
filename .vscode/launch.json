@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-TrabalhoFinalDawApplication<trabalhoFinalDAW>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.AjudaAqui.trabalhoFinalDAW.TrabalhoFinalDawApplication",
+            "projectName": "trabalhoFinalDAW",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

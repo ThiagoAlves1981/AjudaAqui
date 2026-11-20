@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Novo Pedido - AjudaAqui</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-8">
+    <div class="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
+        <h1 class="text-2xl font-bold mb-6 text-gray-800">Iniciar Novo Pedido</h1>
+
+        <form th:action="@{/pedidos/salvar}" th:object="${pedido}" method="post" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Selecione o Cliente:</label>
+                <select th:field="*{clienteComprador.id}" 
+                        class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
+                    <option value="">-- Selecione um Cliente --</option>
+                    <option th:each="c : ${clientes}" 
+                            th:value="${c.id}" 
+                            th:text="${c.nome + ' (CPF: ' + c.cpf + ')'}">
+                    </option>
+                </select>
+                <!-- Exibe mensagem de erro caso o cliente não seja selecionado -->
+                <p th:if="${#fields.hasErrors('clienteComprador.id')}" 
+                   th:errors="*{clienteComprador.id}" 
+                   class="text-red-500 text-xs mt-1 font-semibold"></p>
+            </div>
+
+            <div class="flex justify-between items-center pt-4">
+                <a th:href="@{/pedidos}" class="text-gray-600 hover:underline">Cancelar</a>
+                <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 font-medium">
+                    Avançar para Itens →
+                </button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
